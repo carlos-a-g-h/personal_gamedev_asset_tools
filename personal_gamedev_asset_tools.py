@@ -70,7 +70,7 @@ def json_to_dict(json_file):
 
 # Sprite Sheet Maker using FFmpeg
 def util_ssm_ffmpeg(outdir,filename,the_list):
-	print("Using FFmpeg to create a sprite sheet...")
+	print("\nUsing FFmpeg to create a sprite sheet...")
 
 	issues=0
 
