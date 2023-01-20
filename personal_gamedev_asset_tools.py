@@ -32,13 +32,18 @@ def copy(ipath,opath):
 				if chunk:
 					ofile.write(chunk)
 
-def create_odir(opath,name):
-	odir=opath.joinpath(name)
-	if odir.exists():
-		odir=opath.joinpath(name+"."+time.strftime("%Y-%m-%d-%H-%M-%S"))
+def path_force(opath,name,sfx=None):
+	n=name
+	if sfx:
+		n=n+sfx
+	the_path=opath.joinpath(n)
+	if the_path.exists():
+		n=name+"."+time.strftime("%Y-%m-%d-%H-%M-%S")
+		if sfx:
+			n=n+sfx
+		the_path=opath.joinpath(n)
 
-	odir.mkdir()
-	return odir
+	return the_path
 
 def json_to_dict(json_file):
 	json_ok={}
@@ -74,8 +79,10 @@ def util_ssm_ffmpeg(outdir,filename,the_list):
 
 	issues=0
 
+	framecount=str(len(the_list))+"f"
+
 	the_suffix=the_list[0].suffix
-	the_sheet=outdir.joinpath(filename+the_suffix)
+	the_sheet=outdir.joinpath(filename+"_"+framecount+the_suffix)
 	the_sheet_copy=outdir.joinpath(outdir.name+".copy"+the_suffix)
 
 	idx=0
@@ -102,8 +109,17 @@ def util_ssm_ffmpeg(outdir,filename,the_list):
 	return issues
 
 def yy_recover_single_sound(opath,fse_list,yy_data):
-	# TODO: Finish code for recovering sound files
-	pass
+	asset_name=yy_data["name"]
+	ofile=path_force(opath,asset_name,".ogg")
+	for fse in fse_list:
+		if fse.name==asset_name:
+			copy(fse,ofile)
+			break
+
+	if ofile.exists():
+		return True
+
+	return False
 
 def yy_recover_single_sprite(opath,fse_list,yy_data):
 
@@ -114,7 +130,8 @@ def yy_recover_single_sprite(opath,fse_list,yy_data):
 		return
 
 	asset_name=yy_data["name"]
-	outdir=create_odir(opath,asset_name)
+	outdir=path_force(opath,asset_name)
+	outdir.mkdir()
 
 	recovered=0
 	results={"total":len(yy_data["frames"]),"recovered":0}
@@ -151,19 +168,19 @@ def yy_recover_single_sprite(opath,fse_list,yy_data):
 
 	return results
 
-def yy_recover_single(opath,yy_res_dir):
+def yy_recover_single(opath,yy_dir_res):
 
 	if type(opath) is str:
 		opath=Path(opath)
 
 	opath.mkdir(parents=True,exist_ok=True)
 
-	if type(yy_res_dir) is str:
-		yy_res_dir=Path(yy_res_dir)
+	if type(yy_dir_res) is str:
+		yy_dir_res=Path(yy_dir_res)
 
-	fse_list=list(yy_res_dir.glob("*"))
+	fse_list=list(yy_dir_res.glob("*"))
 	for fse in fse_list:
-		if fse.name==yy_res_dir.name+".yy":
+		if fse.name==yy_dir_res.name+".yy":
 			fse_yy_json=fse
 			break
 
@@ -187,7 +204,9 @@ def yy_recover_single(opath,yy_res_dir):
 		results=yy_recover_single_sprite(opath,fse_list,yy_data)
 
 	if yy_data["modelName"]=="GMSound":
-		# results=yy_recover_single_sound(opath,fse_list,yy_data)
-		results=False
+		results=yy_recover_single_sound(opath,fse_list,yy_data)
 
 	return results
+
+def yy_recover(opath,yy_dir_cat):
+	pass
