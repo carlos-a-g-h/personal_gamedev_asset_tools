@@ -9,6 +9,6 @@ from sys import argv
 def main():
 	sprite_dir=argv[1]
 	res=recover_single(".",sprite_dir)
-	print("Recovery results:",res)
+	print("\nRecovery results:",res)
 
 main()
