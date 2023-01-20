@@ -1,9 +1,5 @@
 #!/usr/bin/python3.9
 
-# Features:
-# Create sprite sheets using FFmpeg
-# Recovers sprites (images) and sounds from a Game Maker Studio 2 project (tested only with GMS2 v2.2.5.481 projects)
-
 import json
 import time
 
