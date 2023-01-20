@@ -75,6 +75,39 @@ def yy_json_getfile(fse_list,yy_dir):
 
 	return None
 
+# Sprite Sheet Maker using FFmpeg
+def util_ssm_ffmpeg(outdir,filename,the_list):
+	print("Using FFmpeg to create a sprite sheet...")
+
+	issues=0
+
+	the_suffix=the_list[0].suffix
+	the_sheet=outdir.joinpath(filename+the_suffix)
+	the_sheet_copy=outdir.joinpath(outdir.name+".copy"+the_suffix)
+
+	idx=0
+	for fse in the_list:
+		idx=idx+1
+		if idx==1:
+			copy(fse,the_sheet)
+
+		if idx>1:
+			time.sleep(0.1)
+			copy(the_sheet,the_sheet_copy)
+			ffmpeg_line=["ffmpeg","-y","-v","warning","-i",str(the_sheet_copy),"-i",str(fse),"-filter_complex","hstack",str(the_sheet)]
+			print("\nLine:",ffmpeg_line)
+			sc=subprocess.run(ffmpeg_line).returncode
+			print("Status Code:",sc)
+			if (not sc==0):
+				issues=issues+1
+
+			ffmpeg_line.clear()
+
+		if the_sheet_copy.exists():
+			the_sheet_copy.unlink()
+
+	return issues
+
 def recover_single_sound(opath,fse_list,yy_data):
 	# TODO: Finish code for recovering sound files
 	pass
@@ -120,55 +153,10 @@ def recover_single_sprite(opath,fse_list,yy_data):
 			print("FFmpeg not found: cannot create a sprite sheet")
 			return results
 
-		print("Using FFmpeg to create a sprite sheet...")
-		results.update({"sheet_problem":False})
-		the_suffix=fse_list_final[0].suffix
-		the_sheet=outdir.joinpath(asset_name+the_suffix)
-		the_sheet_copy=outdir.joinpath(outdir.name+".backup"+the_suffix)
-
-		# row_files=[]
-		# row_limit=5
-
-		idx=0
-		for fse in fse_list_final:
-			idx=idx+1
-			if idx==1:
-				copy(fse,the_sheet)
-				#row_files.append(fse)
-				#print(idx,"$ copy 'the_sheet'")
-
-			if idx>1:
-				copy(the_sheet,the_sheet_copy)
-
-				ffmpeg_line=["ffmpeg","-y","-v","warning","-i",str(the_sheet_copy),"-i",str(fse),"-filter_complex"]
-				ffmpeg_line.append("hstack")
-				#if len(row_files)>0:
-				#	ffmpeg_line.append("hstack")
-				#if len(row_files)==0:
-				#	ffmpeg_line.append("vstack")
-
-				ffmpeg_line.append(str(the_sheet))
-				#print(idx,"$",ffmpeg_line)
-
-				#row_files.append(fse)
-				#if len(row_files)==row_limit:
-				#	row_files.clear()
-
-				time.sleep(0.1)
-				print("\nLine:",ffmpeg_line)
-				sc=subprocess.run(ffmpeg_line).returncode
-				print("Status Code:",sc)
-				if not sc==0 and results["sheet_problem"]==False:
-					results["sheet_problem"]=True
-
-				ffmpeg_line.clear()
-
-		if the_sheet_copy.exists():
-			the_sheet_copy.unlink()
+		errors_found=util_ssm_ffmpeg(outdir,asset_name,fse_list_final)
+		results.update({"ssm_errors":errors_found})
 
 	return results
-
-# All functions below this point can be used individually
 
 def recover_single(opath,yy_res_dir):
 
