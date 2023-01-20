@@ -9,6 +9,9 @@ import time
 from pathlib import Path
 from sys import platform
 
+if platform=="linux":
+	import subprocess
+
 def nice_digits(number_lim,number):
 	output=str(number)
 	lendiff=len(str(number_lim))-len(output)
@@ -84,10 +87,13 @@ def recover_single_sprite(opath,fse_list,yy_data):
 	if len(yy_data["frames"])==0:
 		return
 
-	outdir=create_odir(opath,yy_data["name"])
+	asset_name=yy_data["name"]
+	outdir=create_odir(opath,asset_name)
 
 	recovered=0
 	results={"total":len(yy_data["frames"]),"recovered":0}
+
+	fse_list_final=[]
 
 	index=0
 	lastnum=len(yy_data["frames"])-1
@@ -100,13 +106,66 @@ def recover_single_sprite(opath,fse_list,yy_data):
 					fse_rec=outdir.joinpath(fse_rec_name+fse.suffix)
 					if fse.exists():
 						copy(fse,fse_rec)
+						fse_list_final.append(fse_rec)
 
-					recovered=recovered+1
 					break
 
 			index=index+1
 
-	results["recovered"]=recovered
+	recov=len(fse_list_final)
+	results["recov"]=recov
+
+	if platform=="linux" and len(fse_list_final)>1:
+		if not (subprocess.run(["which","ffmpeg"]).returncode==0):
+			print("FFmpeg not found: cannot create a sprite sheet")
+			return results
+
+		print("Using FFmpeg to create a sprite sheet...")
+		results.update({"sheet_problem":False})
+		the_suffix=fse_list_final[0].suffix
+		the_sheet=outdir.joinpath(asset_name+the_suffix)
+		the_sheet_copy=outdir.joinpath(outdir.name+".backup"+the_suffix)
+
+		# row_files=[]
+		# row_limit=5
+
+		idx=0
+		for fse in fse_list_final:
+			idx=idx+1
+			if idx==1:
+				copy(fse,the_sheet)
+				#row_files.append(fse)
+				#print(idx,"$ copy 'the_sheet'")
+
+			if idx>1:
+				copy(the_sheet,the_sheet_copy)
+
+				ffmpeg_line=["ffmpeg","-y","-v","warning","-i",str(the_sheet_copy),"-i",str(fse),"-filter_complex"]
+				ffmpeg_line.append("hstack")
+				#if len(row_files)>0:
+				#	ffmpeg_line.append("hstack")
+				#if len(row_files)==0:
+				#	ffmpeg_line.append("vstack")
+
+				ffmpeg_line.append(str(the_sheet))
+				#print(idx,"$",ffmpeg_line)
+
+				#row_files.append(fse)
+				#if len(row_files)==row_limit:
+				#	row_files.clear()
+
+				time.sleep(0.1)
+				print("\nLine:",ffmpeg_line)
+				sc=subprocess.run(ffmpeg_line).returncode
+				print("Status Code:",sc)
+				if not sc==0 and results["sheet_problem"]==False:
+					results["sheet_problem"]=True
+
+				ffmpeg_line.clear()
+
+		if the_sheet_copy.exists():
+			the_sheet_copy.unlink()
+
 	return results
 
 # All functions below this point can be used individually
