@@ -104,7 +104,7 @@ def util_ssm_ffmpeg(outdir,filename,the_list):
 
 	return issues
 
-def yy_recover_single_sound(opath,fse_list,yy_data):
+def yyz_recover_single_sound(opath,fse_list,yy_data):
 	asset_name=yy_data["name"]
 	ofile=path_force(opath,asset_name,".ogg")
 	for fse in fse_list:
@@ -117,7 +117,7 @@ def yy_recover_single_sound(opath,fse_list,yy_data):
 
 	return False
 
-def yy_recover_single_sprite(opath,fse_list,yy_data):
+def yyz_recover_single_sprite(opath,fse_list,yy_data):
 
 	if not ("frames" in yy_data):
 		return
@@ -164,7 +164,7 @@ def yy_recover_single_sprite(opath,fse_list,yy_data):
 
 	return results
 
-def yy_recover_single(opath,yy_dir_res):
+def yyz_recover_single(opath,yy_dir_res):
 
 	if type(opath) is str:
 		opath=Path(opath)
@@ -197,12 +197,12 @@ def yy_recover_single(opath,yy_dir_res):
 		return
 
 	if yy_data["modelName"]=="GMSprite":
-		results=yy_recover_single_sprite(opath,fse_list,yy_data)
+		results=yyz_recover_single_sprite(opath,fse_list,yy_data)
 
 	if yy_data["modelName"]=="GMSound":
-		results=yy_recover_single_sound(opath,fse_list,yy_data)
+		results=yyz_recover_single_sound(opath,fse_list,yy_data)
 
 	return results
 
-def yy_recover(opath,yy_dir_cat):
+def yyz_recover(opath,yy_dir_cat):
 	pass
