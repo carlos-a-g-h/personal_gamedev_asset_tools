@@ -9,12 +9,12 @@ import time
 from pathlib import Path
 from sys import platform
 
-def nice_digits(digits,number):
+def nice_digits(number_lim,number):
 	output=str(number)
-	lendiff=digits-len(output)
+	lendiff=len(str(number_lim))-len(output)
 	while lendiff>0:
 		output="0"+output
-		lendiff=digits-len(output)
+		lendiff=len(str(number_lim))-len(output)
 
 	return output
 
@@ -72,11 +72,11 @@ def yy_json_getfile(fse_list,yy_dir):
 
 	return None
 
-def recover_sound(opath,fse_list,yy_data):
+def recover_single_sound(opath,fse_list,yy_data):
 	# TODO: Finish code for recovering sound files
 	pass
 
-def recover_sprite(opath,fse_list,yy_data):
+def recover_single_sprite(opath,fse_list,yy_data):
 
 	if not ("frames" in yy_data):
 		return
@@ -90,13 +90,13 @@ def recover_sprite(opath,fse_list,yy_data):
 	results={"total":len(yy_data["frames"]),"recovered":0}
 
 	index=0
-	digits=len(str(len(yy_data["frames"])))
+	lastnum=len(yy_data["frames"])-1
 	for frame in yy_data["frames"]:
 		if "id" in frame:
 			curr_id=frame["id"]
 			for fse in fse_list:
 				if fse.stem==curr_id:
-					fse_rec_name=nice_digits(digits,index)
+					fse_rec_name=nice_digits(lastnum,index)
 					fse_rec=outdir.joinpath(fse_rec_name+fse.suffix)
 					if fse.exists():
 						copy(fse,fse_rec)
@@ -111,7 +111,7 @@ def recover_sprite(opath,fse_list,yy_data):
 
 # All functions below this point can be used individually
 
-def recover(opath,yy_res_dir):
+def recover_single(opath,yy_res_dir):
 
 	if type(opath) is str:
 		opath=Path(opath)
@@ -141,10 +141,10 @@ def recover(opath,yy_res_dir):
 		return
 
 	if yy_data["modelName"]=="GMSprite":
-		results=recover_sprite(opath,fse_list,yy_data)
+		results=recover_single_sprite(opath,fse_list,yy_data)
 
 	if yy_data["modelName"]=="GMSound":
-		# results=recover_sound(opath,fse_list,yy_data)
+		# results=recover_single_sound(opath,fse_list,yy_data)
 		results=False
 
 	return results
