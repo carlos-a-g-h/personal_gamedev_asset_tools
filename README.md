@@ -16,5 +16,5 @@ If you're on Linux, Mac or any other Unix-based system, run the following line t
 
 `$ cat personal_gamedev_asset_tools.py |grep "# Utility"`
 
-All safe to use functions that correspond each feature are preceded by a comment that starts with "# Utility"
+All safe to use functions that correspond to each feature are preceded by a comment that starts with "# Utility"
 There are code examples of some features in the "examples" folder
