@@ -9,3 +9,12 @@ WARNING: Requirements and features may increase in the future
 ## Features
 - Create sprite sheets using FFmpeg. Tested on Linux only but it should also work on Windows and Mac
 - Recovers individual sprites (images) and sounds from a Game Maker Studio 2 project (tested only with GMS2 v2.2.5.481 projects). Recovering a sprite with more than one frame will also try and create a sprite sheet with using FFmpeg but only if you're on Linux and have FFmpeg installed
+- Convert Game Maker GMMOD 3D format files to OBJ files
+
+## Function names
+If you're on Linux, Mac or any other Unix-based system, run the following line to view all features:
+
+`$ cat personal_gamedev_asset_tools.py |grep "# Utility"`
+
+All safe to use functions that correspond each feature are preceded by a comment that starts with "# Utility"
+There are examples for some features in the "examples" folder
