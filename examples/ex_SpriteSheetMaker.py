@@ -1,8 +1,9 @@
 #!/usr/bin/python3.9
 
 from pathlib import Path
-from personal_gamedev_asset_tools import ssm_ffmpeg
 from sys import argv
+
+from personal_gamedev_asset_tools import ssm_ffmpeg
 
 # Example code for creating sprite sheets
 # Provide all paths to the files as arguments, the order of the files matter
